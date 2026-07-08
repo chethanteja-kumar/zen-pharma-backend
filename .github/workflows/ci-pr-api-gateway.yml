@@ -9,10 +9,6 @@ on:
     paths:
       - 'api-gateway/**'
       - '.github/workflows/ci-pr-api-gateway.yml'
-  pull_request:
-    branches: [develop]
-    paths:
-      - 'api-gateway/**'
 
 permissions:
   contents: read
