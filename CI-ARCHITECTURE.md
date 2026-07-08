@@ -158,9 +158,11 @@ zen-pharma-backend/
 | Event | Branches | Workflow triggered | What runs |
 |---|---|---|---|
 | `push` | `feat-*`, `fix-*`, `chore-*` | `ci-pr-<service>.yml` | Lint · Test · CodeQL · Semgrep · OWASP |
-| `pull_request` | target: `develop` | `ci-pr-<service>.yml` | Same as above |
 | `push` | `develop`, `release/**` | `ci-<service>.yml` | Full build + ECR + DEV deploy + open QA PR |
 | `workflow_dispatch` | any | `promote-prod.yml` | Read QA tag → open PROD PR |
+
+> **Why is there no `pull_request` trigger for the PR-check workflow?**
+> `ci-pr-<service>.yml` used to also trigger on `pull_request` into `develop`, in addition to `push` on `feat-*/fix-*/chore-*`. Since a student's PR is opened from a branch inside their own repo (not a cross-repo fork-to-upstream PR), both triggers fired for the same commit SHA — every push while a PR was open ran the identical check twice. GitHub Actions attaches check runs to the commit SHA, not to the event that triggered them, so removing the `pull_request` trigger loses no visibility: the push-triggered check still shows up on the PR automatically.
 
 > **Why path filters on every workflow?**  
 > This is a monorepo with 7 services. Without path filters, pushing a one-line change to `notification-service/` would trigger all 7 pipelines — 6 unnecessary builds. Each workflow is scoped to its own service directory (`notification-service/**`) so only the affected service rebuilds. The exception: changes to the workflow file itself (`ci-notification.yml`) also trigger a run, so CI configuration changes are validated.
@@ -176,7 +178,8 @@ zen-pharma-backend/
 ┌────────────────────────────────────────────────────────────────────────┐
 │  TIER 1 — Feature Branch (ci-pr-*.yml)                                 │
 │                                                                        │
-│  Trigger: push to feat-* / fix-* / chore-*,  or PR → develop          │
+│  Trigger: push to feat-* / fix-* / chore-*                            │
+│           (check appears automatically on any PR from that branch)     │
 │  Goal:    fast feedback to developer, no side-effects                  │
 │                                                                        │
 │  Maven verify (+ Postgres if needed)                                   │
