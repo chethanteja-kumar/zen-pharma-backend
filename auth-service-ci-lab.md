@@ -66,6 +66,24 @@ If any of these are missing, do them first (or ask your instructor which mode yo
 uses — see below) — otherwise `deploy-dev` will push a commit but the pod will sit in
 `ImagePullBackOff` or `CrashLoopBackOff` forever, with nothing wrong in this repo's CI.
 
+**Why External Secrets Operator instead of native Kubernetes Secrets:**
+
+- **Single source of truth** — the real value lives in AWS Secrets Manager, not in the
+  cluster or in git. A plain Kubernetes Secret has no upstream source, so drift and stale
+  values creep in over time.
+- **No static AWS credentials in the cluster** — ESO authenticates via IRSA, so no long-lived
+  access keys sit in a Secret or env var the way a hand-rolled sync script would need.
+- **Automatic rotation** — ESO polls Secrets Manager on an interval and updates the
+  Kubernetes Secret in place; rotating the value upstream doesn't require a manual
+  `kubectl apply` or a redeploy.
+- **Audit trail** — reads go through AWS Secrets Manager, logged in CloudTrail. Kubernetes
+  Secrets are only base64-encoded and carry no equivalent access log.
+- **Consistent across environments** — dev, qa, and prod all sync from the same Secrets
+  Manager paths, so promoting a secret change is an AWS-side update, not a per-namespace
+  `kubectl` command.
+- **No app changes needed** — Pods still consume an ordinary Kubernetes Secret; ESO only
+  changes how that Secret's contents are populated and kept fresh.
+
 ---
 
 ## Course / instructor setup
