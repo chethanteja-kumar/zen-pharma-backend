@@ -67,6 +67,20 @@ jobs:
           echo
           echo "=== Git Config ==="
           git config --list
+          
+      - name: Verify GitHub authentication
+        env:
+          GH_TOKEN: ${{ secrets.GITOPS_TOKEN }}
+        run: |
+            gh auth status
+
+      - name: Verify GitHub authentication
+        env:
+          GH_TOKEN: ${{ secrets.GITOPS_TOKEN }}
+        run: |
+          gh auth status
+          echo "Authenticated user:"
+          gh api user
 
       - name: Update image tag — DEV
         env:
