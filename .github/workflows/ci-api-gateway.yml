@@ -58,6 +58,15 @@ jobs:
           repository: ${{ env.GITOPS_REPO }}
           token: ${{ secrets.GITOPS_TOKEN }}
           path: _gitops
+          
+      - name: Debug Git Remote
+        run: |
+          cd _gitops
+          echo "=== Git Remote ==="
+          git remote -v
+          echo
+          echo "=== Git Config ==="
+          git config --list
 
       - name: Update image tag — DEV
         env:
