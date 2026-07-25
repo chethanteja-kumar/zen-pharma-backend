@@ -166,8 +166,14 @@ jobs:
           retention-days: 14
 
       # ── AWS credentials via OIDC (no long-lived keys) ─────────────────────────
-      - name: Debug GitHub OIDC claims
-        uses: github/actions-oidc-debugger@v1
+      - name: Print GitHub context
+        run: |
+          echo "Repository      : ${{ github.repository }}"
+          echo "Repository ID   : ${{ github.repository_id }}"
+          echo "Ref             : ${{ github.ref }}"
+          echo "Ref Name        : ${{ github.ref_name }}"
+          echo "Workflow Ref    : ${{ github.workflow_ref }}"
+          echo "Actor           : ${{ github.actor }}"
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
