@@ -166,6 +166,14 @@ jobs:
           retention-days: 14
 
       # ── AWS credentials via OIDC (no long-lived keys) ─────────────────────────
+      - name: Request GitHub OIDC token
+        run: |
+          echo "ACTIONS_ID_TOKEN_REQUEST_URL=$ACTIONS_ID_TOKEN_REQUEST_URL"
+          TOKEN=$(curl -s \
+          -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+          "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" | jq -r '.value')
+
+          echo "$TOKEN" | cut -d '.' -f2 | base64 -d || true
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
